@@ -1,23 +1,55 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import Task from './components/Task';
 
 export default function App() {
+  const [task, setTask] = useState();
+  const [taskItems, setTaskItems] = useState([]);
+
+  const handleAddTask = () => {
+    Keyboard.dismiss();
+    setTaskItems([...taskItems, task]);
+    setTask(null);
+  }
+
+  const completeTask = (index) => {
+    let allTasks = [...taskItems];
+    allTasks.splice(index, 1);
+    setTaskItems(allTasks);
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.taskswrapper}>
+      <ScrollView style={styles.taskswrapper}>
         <Text style={styles.sectionTitle}>Today's task</Text>
         <View style={styles.items}>
-          <Task text={'task 1'} />
+          {
+            taskItems.map((item, index) => {
+
+              return (
+                <TouchableOpacity key={index + item} onPress={() => completeTask(index)}>
+
+                  <Task
+                    text={item}
+                  />
+                </TouchableOpacity>
+              )
+            })
+          }
         </View>
-      </View >
+      </ScrollView >
       {/* write a task */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.writeTaskWrapper}
       >
-        <TextInput style={styles.input} placeholder={'Write a task'} />
-        <TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder={'Write a task'}
+          value={task}
+          onChangeText={text => setTask(text)}
+        />
+        <TouchableOpacity onPress={() => handleAddTask()}>
           <View style={styles.addWrapper}>
             <Text style={styles.addText}>+</Text>
           </View>
